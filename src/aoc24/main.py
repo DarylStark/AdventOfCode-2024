@@ -8,6 +8,8 @@ from rich.console import Console
 
 from aoc.advent_of_code import AdventOfCode
 
+from .solutions import Day01
+
 
 def main() -> None:
     """Main function for the application."""
@@ -15,7 +17,7 @@ def main() -> None:
     console = Console()
 
     # Add solutions
-    # TODO: Add solutions
+    aoc24.add_solution(1, Day01('data/day01-input.txt'))
 
     # Print solutions
     console.print('[yellow][bold]Advent of Code 2024!![/bold][/yellow]')

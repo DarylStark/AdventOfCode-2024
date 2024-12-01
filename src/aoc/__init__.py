@@ -1,4 +1,6 @@
 """Package to solve Advent of Code puzzles."""
 
-from .advent_of_code import AdventOfCode  # noqa
-from .day_solution import DaySolution  # noqa
+from .advent_of_code import AdventOfCode
+from .day_solution import DaySolution
+
+__all__ = ['AdventOfCode', 'DaySolution']
