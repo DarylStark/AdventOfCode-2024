@@ -48,4 +48,10 @@ class Day01(DaySolution):
 
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
-        return 'NOT CALCULATED YET'
+        self._load_data()
+
+        similarity: int = 0
+        for item in self._list_a:
+            similarity += item * self._list_b.count(item)
+
+        return str(similarity)
