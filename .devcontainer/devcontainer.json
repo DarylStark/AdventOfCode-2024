@@ -1,0 +1,8 @@
+{
+    "name": "AdventOfCode2024",
+    "image": "dast1986/slough-dev-dc-python:latest",
+    "remoteEnv": {
+        "PROMPTNAME": "AOC24",
+        "LC_ALL": "C.UTF-8"
+    }
+}
