@@ -84,25 +84,44 @@ class Day02(DaySolution):
             last_number = number
         return True
 
+    def _is_safe(self, report: list[int], max_difference: int = 3):
+        """Check if a report is safe.
+
+        Args:
+            report: a list of numbers to check.
+            max_difference: the max two numbers can be apart from each other.
+
+        Returns:
+            True when the report is safe.
+        """
+        if not (self._is_increasing(report) or self._is_decreasing(report)):
+            return False
+
+        return self._adjecent_numbers(report, max_difference)
+
     def solve_puzzle_one(self) -> str:
         """Solve puzzle one."""
         self._load_data()
 
         safe_reports = 0
-
         for report in self._list:
-            # Check the first rule
-            if not (
-                self._is_increasing(report) or self._is_decreasing(report)
-            ):
-                continue
-
-            # Check the scond rule
-            if self._adjecent_numbers(report, 3):
+            if self._is_safe(report, 3):
                 safe_reports += 1
-
         return str(safe_reports)
 
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
-        return ''
+        self._load_data()
+
+        safe_reports = 0
+        for report in self._list:
+            if self._is_safe(report, 3):
+                safe_reports += 1
+            else:
+                for index in range(0, len(report)):
+                    list_copy = report.copy()
+                    list_copy.pop(index)
+                    if self._is_safe(list_copy):
+                        safe_reports += 1
+                        break
+        return str(safe_reports)
