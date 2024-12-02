@@ -21,7 +21,9 @@ def main() -> None:
     aoc24.add_solution(2, Day02('data/day02-input.txt'))
 
     # Print solutions
-    console.print('[yellow][bold]Advent of Code 2024!![/bold][/yellow]')
+    console.print(
+        '[yellow][bold]Advent of Code 2024 - Python version[/bold][/yellow]'
+    )
     console.print('[gray]By Daryl Stark[/gray]')
     console.print('')
     for day in range(1, 25):
