@@ -8,7 +8,7 @@ from rich.console import Console
 
 from aoc.advent_of_code import AdventOfCode
 
-from .solutions import Day01
+from .solutions import Day01, Day02
 
 
 def main() -> None:
@@ -18,6 +18,7 @@ def main() -> None:
 
     # Add solutions
     aoc24.add_solution(1, Day01('data/day01-input.txt'))
+    aoc24.add_solution(2, Day02('data/day02-input.txt'))
 
     # Print solutions
     console.print('[yellow][bold]Advent of Code 2024!![/bold][/yellow]')
