@@ -46,4 +46,20 @@ class Day03(DaySolution):
 
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
-        return ''
+        self._load_data()
+
+        all_instructions = re.findall(
+            r'mul\((\d+),(\d+)\)|(do\(\))|(don\'t\(\))',
+            self._file_data,
+        )
+
+        enabled = True
+        total = 0
+        for instruction in all_instructions:
+            if instruction[3] == "don't()":
+                enabled = False
+            elif instruction[2] == 'do()':
+                enabled = True
+            elif enabled:
+                total += int(instruction[0]) * int(instruction[1])
+        return str(total)
