@@ -94,6 +94,75 @@ class Day04(DaySolution):
 
         return len(all_words)
 
+    def _get_diagonal_to_right(self, x: int, y: int, length: int) -> str:
+        """Get the diagonal word from a starting position to the right.
+
+        Args:
+            x: the x position.
+            y: the y position.
+            length: the amount of characters to get
+        """
+        new_x = x
+        new_y = y
+        word = ''
+        while len(word) < length:
+            try:
+                word += self._letter_grid[new_y][new_x]
+            except IndexError:
+                break
+            new_x += 1
+            new_y += 1
+        return word
+
+    def _get_diagonal_to_left(self, x: int, y: int, length: int) -> str:
+        """Get the diagonal word from a starting position to the left.
+
+        Args:
+            x: the x position.
+            y: the y position.
+            length: the amount of characters to get
+        """
+        new_x = x
+        new_y = y
+        word = ''
+        while len(word) < length:
+            try:
+                word += self._letter_grid[new_y][new_x]
+            except IndexError:
+                break
+            new_x -= 1
+            if new_x < 0:
+                break
+            new_y += 1
+        return word
+
+    def _count_x_mas(self) -> int:
+        """Find the count of occurences of X-MAS.
+
+        This means we have to find all occurences of:
+
+            .M.S.
+            ..A..
+            .M.S.
+
+        It basically means it's two MAS'es in a X.
+
+        Returns:
+            The count of the word word MAS in a X.
+        """
+        count = 0
+
+        # Left to right downwards
+        for y in range(0, len(self._letter_grid)):
+            for x in range(0, len(self._letter_grid[y])):
+                word_r = self._get_diagonal_to_right(x, y, 3)
+                if word_r in ('MAS', 'SAM'):
+                    word_l = self._get_diagonal_to_left(x + 2, y, 3)
+                    if word_l in ('MAS', 'SAM'):
+                        count += 1
+
+        return count
+
     def solve_puzzle_one(self) -> str:
         """Solve puzzle one."""
         self._load_data()
@@ -109,4 +178,4 @@ class Day04(DaySolution):
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+        return str(self._count_x_mas())
