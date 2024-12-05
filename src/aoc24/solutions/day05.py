@@ -1,5 +1,6 @@
 """Solutions for Advent of Code 2024 - Day 5."""
 
+from functools import cmp_to_key
 import re
 
 from aoc import DaySolution
@@ -57,6 +58,27 @@ class Day05(DaySolution):
 
         return True
 
+    def _balance_update(self, update: list[int]) -> list[int]:
+        """Balance a update.
+
+        Args:
+            update: the update
+        """
+        order_dict: dict[int, list[int]] = {}
+        for rule in self._rules:
+            order_dict[rule[0]] = order_dict.get(rule[0], []) + [rule[1]]
+
+        def custom_comparator(x, y):
+            if x == y:
+                return 0
+            if y in order_dict.get(x, []):
+                return -1
+            if x in order_dict.get(y, []):
+                return 1
+            return 0
+
+        return sorted(update, key=cmp_to_key(custom_comparator))
+
     def solve_puzzle_one(self) -> str:
         """Solve puzzle one."""
         self._load_data()
@@ -75,4 +97,17 @@ class Day05(DaySolution):
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+
+        sum = 0
+
+        # Loop through every update
+        for update in self._updates:
+            if not self._is_valid_update(update):
+                # Balance the list
+                update = self._balance_update(update)
+
+                # Find the middle number
+                middle_number = update[len(update) // 2]
+                sum += middle_number
+
+        return str(sum)
