@@ -165,6 +165,5 @@ class Day06(DaySolution):
                 if self._is_loop():
                     loops.add((x, y))
                 self._map[y][x] = '.'
-            print(i := i + 1)
 
         return str(len(loops))
