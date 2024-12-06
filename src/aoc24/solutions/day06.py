@@ -27,7 +27,6 @@ class Day06(DaySolution):
     def __init__(self, input_file: str) -> None:
         """Set internal values."""
         self._input_file = input_file
-        self._loaded_data = False
         self._map: list[list[str]] = []
         self._guard_position: tuple[int, int] = (0, 0)
         self._guard_direction: GuardDirection = GuardDirection.NORTH
@@ -35,15 +34,11 @@ class Day06(DaySolution):
 
     def _load_data(self) -> None:
         """Load data from the input file."""
-        if self._loaded_data:
-            return
-
         with open(self._input_file, encoding='utf-8') as file:
             self._map = [list(line.strip()) for line in file.readlines()]
 
         self._get_current_position()
-
-        self._loaded_data = True
+        self._guard_direction: GuardDirection = GuardDirection.NORTH
 
     def _get_current_position(self) -> None:
         """Get the current position of the guard."""
@@ -88,7 +83,7 @@ class Day06(DaySolution):
 
         if self._is_valid_position(new_x, new_y):
             character_on_new_position = self._map[new_y][new_x]
-            if character_on_new_position != '.':
+            if character_on_new_position not in ('.', '^'):
                 return False
             self._map[self._guard_position[1]][self._guard_position[0]] = '.'
             self._map[new_y][new_x] = '^'
@@ -103,10 +98,8 @@ class Day06(DaySolution):
         )
         pass
 
-    def solve_puzzle_one(self) -> str:
-        """Solve puzzle one."""
-        self._load_data()
-
+    def _get_all_visited_positions(self) -> set[tuple[int, int]]:
+        """Get all positions that are visited."""
         visited_positions: set[tuple[int, int]] = set()
         while self._is_valid_position(*self._guard_position):
             if self._one_step_forward() and self._is_valid_position(
@@ -116,9 +109,62 @@ class Day06(DaySolution):
             else:
                 self._turn()
 
-        return str(len(visited_positions))
+        return visited_positions
+
+    def solve_puzzle_one(self) -> str:
+        """Solve puzzle one."""
+        self._load_data()
+        return str(len(self._get_all_visited_positions()))
+
+    def _is_loop(self) -> bool:
+        """Check if there is a loop by walking around.
+
+        If we get at the same position in the same direction again, we are in
+        a loop.
+
+        Returns:
+            True if we are in loop, False if we aren't.
+        """
+        visited_positions: list[tuple[int, int, GuardDirection]] = []
+        turns = 0
+        while self._is_valid_position(*self._guard_position):
+            if self._one_step_forward() and self._is_valid_position(
+                *self._guard_position
+            ):
+                turns = 0
+                new_pos = (
+                    self._guard_position[0],
+                    self._guard_position[1],
+                    self._guard_direction,
+                )
+                visited_positions.append(new_pos)
+                if visited_positions.count(new_pos) > 1:
+                    return True
+            else:
+                self._turn()
+                turns += 1
+                if turns == 4:
+                    return True
+
+        return False
 
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+        start_position = self._guard_position
+        start_direction = self._guard_direction
+        loops: set[tuple[int, int]] = set()
+
+        check_positions = self._get_all_visited_positions()
+        i = 0
+        for x, y in check_positions:
+            if self._map[y][x] in ('.', '^'):
+                self._guard_position = start_position
+                self._guard_direction = start_direction
+                self._map[y][x] = '#'
+                if self._is_loop():
+                    loops.add((x, y))
+                self._map[y][x] = '.'
+            print(i := i + 1)
+
+        return str(len(loops))
