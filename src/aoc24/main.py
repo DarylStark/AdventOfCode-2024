@@ -24,6 +24,7 @@ def main() -> None:
     aoc24.add_solution(5, Day05('data/day05-input.txt'))
     # aoc24.add_solution(6, Day06('data/day06-input.txt'))
     aoc24.add_solution(7, Day07('data/day07-input.txt'))
+
     # Print solutions
     console.print(
         '[yellow][bold]Advent of Code 2024 - Python version[/bold][/yellow]'

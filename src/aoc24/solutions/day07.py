@@ -33,6 +33,8 @@ class Day07(DaySolution):
                 equations = [int(eq) for eq in splitted[1].strip().split(' ')]
                 self._calibrations.append((result, equations))
 
+        self._loaded_data = True
+
     def _is_correct_calibration(
         self, required_result: int, equations: list[int]
     ) -> bool:
@@ -58,6 +60,38 @@ class Day07(DaySolution):
             required_result, [equations[0] * equations[1], *equations[2:]]
         )
 
+    def _is_correct_calibration_concat(
+        self, required_result: int, equations: list[int]
+    ) -> bool:
+        """Determine if the result can be generated from the equations.
+
+        Args:
+            required_result: the needed result.
+            equations: the numbers to generate the result with.
+
+        Returns:
+            True if the required result can be achieved, Otherwise False.
+        """
+        if len(equations) == 2:
+            if equations[0] + equations[1] == required_result:
+                return True
+            if int(f'{equations[0]}{equations[1]}') == required_result:
+                return True
+            return equations[0] * equations[1] == required_result
+
+        if self._is_correct_calibration_concat(
+            required_result, [equations[0] + equations[1], *equations[2:]]
+        ):
+            return True
+        if self._is_correct_calibration_concat(
+            required_result,
+            [int(f'{equations[0]}{equations[1]}'), *equations[2:]],
+        ):
+            return True
+        return self._is_correct_calibration_concat(
+            required_result, [equations[0] * equations[1], *equations[2:]]
+        )
+
     def solve_puzzle_one(self) -> str:
         """Solve puzzle one."""
         self._load_data()
@@ -75,4 +109,13 @@ class Day07(DaySolution):
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+
+        # Loop through each calibration and find the correct operators
+        correct = 0
+        for calibration in self._calibrations:
+            result = calibration[0]
+            equations = calibration[1]
+            if self._is_correct_calibration_concat(result, equations):
+                correct += result
+
+        return str(correct)
