@@ -19,7 +19,7 @@ class Day09(DaySolution):
         self._input_file = input_file
         self._loaded_data = False
         self._drive: str = ''
-        self._drive_list: list[int|None] = []
+        self._drive_list: list[int | None] = []
 
     def _load_data(self) -> None:
         """Load data from the input file."""
@@ -28,44 +28,44 @@ class Day09(DaySolution):
 
         with open(self._input_file, encoding='utf-8') as file:
             self._drive = file.read()
-    
+
     def _create_drive_list(self) -> None:
-        """Create a Python list with the drive index. """
+        """Create a Python list with the drive index."""
         id = 0
         for idx, size in enumerate(self._drive):
             size = int(size)
             if idx % 2 == 0:
-                self._drive_list.extend( [id] * size )
+                self._drive_list.extend([id] * size)
                 id += 1
             else:
-                self._drive_list.extend( [None] * size )
-    
+                self._drive_list.extend([None] * size)
+
     def _get_first_empty_index(self) -> int:
         """Get the fist emtpy place on the drive.
-        
+
         Returns:
             The index of the first empty block.
         """
         return self._drive_list.index(None)
-    
+
     def _defgrament_list(self) -> None:
         """Defragment the file list."""
         for block in range(len(self._drive_list), 0, -1):
-            block_value = self._drive_list[block-1]
-            
+            block_value = self._drive_list[block - 1]
+
             if block_value:
                 # Find the first empty index
                 first_empty = self._get_first_empty_index()
                 if first_empty >= block:
                     break
-                
+
                 # Move the block
                 self._drive_list[first_empty] = block_value
-                self._drive_list[block-1] = None
-    
+                self._drive_list[block - 1] = None
+
     def _get_checksum(self) -> int:
         """Calculate the checksum for the drive.
-        
+
         Returns:
             The checksum as integer.
         """
