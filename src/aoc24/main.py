@@ -35,7 +35,7 @@ def main() -> None:
     # aoc24.add_solution(6, Day06('data/day06-input.txt'))
     # aoc24.add_solution(7, Day07('data/day07-input.txt'))
     aoc24.add_solution(8, Day08('data/day08-input.txt'))
-    aoc24.add_solution(9, Day09('data/day09-test-input.txt'))
+    aoc24.add_solution(9, Day09('data/day09-input.txt'))
 
     # Print solutions
     console.print(
