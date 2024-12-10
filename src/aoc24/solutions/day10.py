@@ -14,6 +14,7 @@ class TrailStart:
     trailhead: MapLocation
     possible_trails: int = 0
     all_endpoints: set[MapLocation] = field(default_factory=set)
+    rating: int = 0
 
 
 class Day10(DaySolution):
@@ -66,6 +67,7 @@ class Day10(DaySolution):
         if current_elevation == 9:
             trail_start.possible_trails += 1
             trail_start.all_endpoints.add(current_location)
+            trail_start.rating += 1
             return
 
         # Find the next step
@@ -110,4 +112,10 @@ class Day10(DaySolution):
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+        self._find_all_trail_starts()
+        self._find_all_trails()
+
+        # Find the sum of all endpoints for all trailstarts
+        count = sum([t.rating for t in self._trailstarts])
+
+        return str(count)
