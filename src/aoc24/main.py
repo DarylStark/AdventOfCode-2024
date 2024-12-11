@@ -19,6 +19,7 @@ from .solutions import (
     Day08,
     Day09,
     Day10,
+    Day11,
 )
 
 
@@ -37,7 +38,8 @@ def main() -> None:
     # aoc24.add_solution(7, Day07('data/day07-input.txt'))
     # aoc24.add_solution(8, Day08('data/day08-input.txt'))
     # aoc24.add_solution(9, Day09('data/day09-input.txt'))
-    aoc24.add_solution(10, Day10('data/day10-input.txt'))
+    # aoc24.add_solution(10, Day10('data/day10-input.txt'))
+    aoc24.add_solution(11, Day11('data/day11-input.txt'))
 
     # Print solutions
     console.print(
