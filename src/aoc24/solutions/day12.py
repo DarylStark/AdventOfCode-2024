@@ -11,6 +11,21 @@ class Region:
 
     character: str
     plots: set[tuple[int, int]] = field(default_factory=set)
+    perimeter_plots: list[tuple[int, int]] = field(default_factory=list)
+
+    def generate_perimeter_plots(self) -> None:
+        """Fill the `perimeter_plots` list."""
+        self.perimeter_plots = []
+        for plot in self.plots:
+            check_locations = [
+                (plot[0] - 1, plot[1]),
+                (plot[0] + 1, plot[1]),
+                (plot[0], plot[1] - 1),
+                (plot[0], plot[1] + 1),
+            ]
+            for check_location in check_locations:
+                if check_location not in self.plots:
+                    self.perimeter_plots.append(check_location)
 
     @property
     def area(self) -> int:
@@ -28,18 +43,163 @@ class Region:
         Returns:
             The perimeter for the region as integer.
         """
-        perimeter = 0
-        for plot in self.plots:
-            check_locations = [
-                (plot[0] - 1, plot[1]),
-                (plot[0] + 1, plot[1]),
-                (plot[0], plot[1] - 1),
-                (plot[0], plot[1] + 1),
+        if len(self.perimeter_plots) == 0:
+            self.generate_perimeter_plots()
+        return len(self.perimeter_plots)
+
+    @property
+    def sides(self) -> int:
+        """Get the amount of sites for the region.
+
+        This function is a mess. It took quite a long time before I found a
+        (working) way of getting the correct answer for this, so I had to play
+        around a bit, which resulted in the code below. We need to refactor it
+        but to be fair; the puzzle was correct, so it is not that important
+        anymore.
+
+        Returns:
+            The amount of sides for the region as a integer.
+        """
+        if len(self.perimeter_plots) == 0:
+            self.generate_perimeter_plots()
+
+        def horizontal_l_wall_count(plot: tuple[int, int]) -> int:
+            return int((plot[0], plot[1] - 1) in self.plots)
+
+        def horizontal_r_wall_count(plot: tuple[int, int]) -> int:
+            return int((plot[0], plot[1] + 1) in self.plots)
+
+        def vertical_t_wall_count(plot: tuple[int, int]) -> int:
+            return int((plot[0] - 1, plot[1]) in self.plots)
+
+        def vertical_b_wall_count(plot: tuple[int, int]) -> int:
+            return int((plot[0] + 1, plot[1]) in self.plots)
+
+        plots: dict[tuple[int, int], list[int, int, set[int]]] = {
+            plot: [
+                horizontal_l_wall_count(plot),
+                horizontal_r_wall_count(plot),
+                vertical_t_wall_count(plot),
+                vertical_b_wall_count(plot),
+                set(),
             ]
-            for check_location in check_locations:
-                if check_location not in self.plots:
-                    perimeter += 1
-        return perimeter
+            for plot in self.perimeter_plots
+        }
+
+        used_sides: set[int] = set()
+
+        def set_side_index_for_horizonal_l_side(
+            plot: tuple[int, int], side_index: int
+        ) -> None:
+            plot_value = plots.get(plot)
+            if not plot_value:
+                return
+
+            if plot_value[0] > 0 and side_index not in plot_value[4]:
+                plot_value[0] -= 1
+                plot_value[4].add(side_index)
+                used_sides.add(side_index)
+                set_side_index_for_horizonal_l_side(
+                    (plot[0] - 1, plot[1]), side_index
+                )
+                set_side_index_for_horizonal_l_side(
+                    (plot[0] + 1, plot[1]), side_index
+                )
+
+        def set_side_index_for_horizonal_r_side(
+            plot: tuple[int, int], side_index: int
+        ) -> None:
+            plot_value = plots.get(plot)
+            if not plot_value:
+                return
+
+            if plot_value[1] > 0 and side_index not in plot_value[4]:
+                plot_value[1] -= 1
+                plot_value[4].add(side_index)
+                used_sides.add(side_index)
+                set_side_index_for_horizonal_r_side(
+                    (plot[0] - 1, plot[1]), side_index
+                )
+                set_side_index_for_horizonal_r_side(
+                    (plot[0] + 1, plot[1]), side_index
+                )
+
+        def set_side_index_for_vertical_t_side(
+            plot: tuple[int, int], side_index: int
+        ) -> None:
+            plot_value = plots.get(plot)
+            if not plot_value:
+                return
+
+            if plot_value[2] > 0 and side_index not in plot_value[4]:
+                plot_value[2] -= 1
+                plot_value[4].add(side_index)
+                used_sides.add(side_index)
+                set_side_index_for_vertical_t_side(
+                    (plot[0], plot[1] - 1), side_index
+                )
+                set_side_index_for_vertical_t_side(
+                    (plot[0], plot[1] + 1), side_index
+                )
+
+        def set_side_index_for_vertical_b_side(
+            plot: tuple[int, int], side_index: int
+        ) -> None:
+            plot_value = plots.get(plot)
+            if not plot_value:
+                return
+
+            if plot_value[3] > 0 and side_index not in plot_value[4]:
+                plot_value[3] -= 1
+                plot_value[4].add(side_index)
+                used_sides.add(side_index)
+                set_side_index_for_vertical_b_side(
+                    (plot[0], plot[1] - 1), side_index
+                )
+                set_side_index_for_vertical_b_side(
+                    (plot[0], plot[1] + 1), side_index
+                )
+
+        side_index = 0
+        while sum([plot[0] for plot in plots.values()]) > 0:
+            for plot in plots:
+                set_side_index_for_horizonal_l_side(plot, side_index)
+                side_index += 1
+
+        while sum([plot[1] for plot in plots.values()]) > 0:
+            for plot in plots:
+                set_side_index_for_horizonal_r_side(plot, side_index)
+                side_index += 1
+
+        while sum([plot[2] for plot in plots.values()]) > 0:
+            for plot in plots:
+                set_side_index_for_vertical_t_side(plot, side_index)
+                side_index += 1
+
+        while sum([plot[3] for plot in plots.values()]) > 0:
+            for plot in plots:
+                set_side_index_for_vertical_b_side(plot, side_index)
+                side_index += 1
+
+        return len(used_sides)
+
+    @property
+    def price(self) -> int:
+        """Get the price for the perimeter.
+
+        Returns:
+            The price as integer.
+        """
+        return self.area * self.perimeter
+
+    @property
+    def discounted_price(self) -> int:
+        """Get the discounted price for the perimeter.
+
+        Returns:
+            The price as integer.
+        """
+        return self.area * self.sides
 
 
 class Day12(DaySolution):
@@ -98,6 +258,7 @@ class Day12(DaySolution):
 
     def _find_all_regions(self) -> None:
         """Find all regions in the map."""
+        self._regions = []
         scouted_plots: set[tuple[int, int]] = set()
         for y in range(0, len(self._map)):
             for x in range(0, len(self._map[y])):
@@ -119,12 +280,18 @@ class Day12(DaySolution):
         self._find_all_regions()
 
         total_price = 0
-        for a in self._regions:
-            total_price += a.area * a.perimeter
+        for region in self._regions:
+            total_price += region.price
 
         return str(total_price)
 
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+        self._find_all_regions()
+
+        total_price = 0
+        for region in self._regions:
+            total_price += region.discounted_price
+
+        return str(total_price)
