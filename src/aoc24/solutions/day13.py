@@ -110,34 +110,25 @@ class Day13(DaySolution):
             0 if the game is unwinnable or a integer with the minimum price
             to win the game.
         """
-        minimum_price: int | None = None
-        current_price = 1
-        while not minimum_price:
-            # This number is incorrect, but I have no idea what it should be.
-            # The puzzle was right _with_ this number though.
-            if current_price >= 3000:
-                break
+        target = (
+            machine.prize_position[1] * machine.prize_position[0]
+        ) + machine.prize_position[0]
+        a_button = (
+            machine.button_a[1] * machine.prize_position[0]
+        ) + machine.button_a[0]
+        b_button = (
+            machine.button_b[1] * machine.prize_position[0]
+        ) + machine.button_b[0]
 
-            # Get the possible button presses for this price
-            presses: list[Presses] = [
-                (a_presses, current_price - (a_presses * 3))
-                for a_presses in range(0, 100)
-                if current_price - (a_presses * 3) >= 0
-                and current_price - (a_presses * 3) <= 100
-            ]
+        max_b = target // b_button
+        a_click = 0
+        for b_click in range(max_b, 0, -1):
+            a_click = (target - (b_click * b_button)) // a_button
+            left = target - (b_click * b_button) - (a_click * a_button)
+            if left == 0:
+                return b_click + (a_click * 3)
 
-            # Try all presses out
-            for press in presses:
-                machine.reset()
-                machine.press_button_a(press[0])
-                machine.press_button_b(press[1])
-                if machine.is_on_prize:
-                    minimum_price = current_price
-                    break
-
-            current_price += 1
-
-        return minimum_price or 0
+        return 0
 
     def solve_puzzle_one(self) -> str:
         """Solve puzzle one."""
@@ -152,4 +143,14 @@ class Day13(DaySolution):
     def solve_puzzle_two(self) -> str:
         """Solve puzzle two."""
         self._load_data()
-        return ''
+
+        # Upgrade prize positions
+        for machine in self._claw_machines:
+            machine.prize_position[0] += 10_000_000_000_000
+            machine.prize_position[1] += 10_000_000_000_000
+
+        minimum_prices = [
+            self.get_minimum_price(machine) for machine in self._claw_machines
+        ]
+
+        return str(sum(minimum_prices))
